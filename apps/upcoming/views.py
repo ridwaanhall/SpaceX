@@ -173,3 +173,15 @@ class UpcomingStatsAPIView(APIView):
                 'message': f'Failed to retrieve upcoming launches statistics: {str(e)}',
                 'data': None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class HealthCheckView(APIView):
+    """
+    Simple health check endpoint for upcoming launches API
+    """
+    
+    def get(self, request):
+        return Response({
+            'status': 'healthy',
+            'message': 'Upcoming Launches API is running'
+        }, status=status.HTTP_200_OK)
