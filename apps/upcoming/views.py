@@ -65,59 +65,6 @@ class UpcomingLaunchesAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class UpcomingLaunchDetailAPIView(APIView):
-    """
-    API view to get a specific upcoming launch by ID.
-    """
-    
-    def get(self, request, launch_id):
-        """
-        GET /upcoming/{launch_id}/
-        Returns specific launch details by ID.
-        """
-        try:
-            # Fetch all launches data
-            raw_data = fetch_upcoming_launches()
-            
-            # Find the specific launch
-            launch_data = None
-            for launch in raw_data:
-                if launch.get('id') == launch_id:
-                    launch_data = launch
-                    break
-            
-            if not launch_data:
-                return Response({
-                    'success': False,
-                    'message': f'Launch with ID {launch_id} not found',
-                    'data': None
-                }, status=status.HTTP_404_NOT_FOUND)
-            
-            # Serialize the launch data
-            serializer = UpcomingLaunchSerializer(data=launch_data)
-            
-            if serializer.is_valid():
-                return Response({
-                    'success': True,
-                    'message': 'Launch details retrieved successfully',
-                    'data': serializer.validated_data
-                }, status=status.HTTP_200_OK)
-            else:
-                return Response({
-                    'success': False,
-                    'message': 'Invalid launch data format',
-                    'errors': serializer.errors,
-                    'raw_data': launch_data
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                
-        except Exception as e:
-            logger.error(f"Error in UpcomingLaunchDetailAPIView: {str(e)}")
-            return Response({
-                'success': False,
-                'message': f'Failed to retrieve launch details: {str(e)}',
-                'data': None
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 class UpcomingStatsAPIView(APIView):
     """
