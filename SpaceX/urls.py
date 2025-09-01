@@ -17,9 +17,12 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from .views import APIRootView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api-auth/", include('rest_framework.urls')),
+    path("", APIRootView.as_view(), name='api-root'),
     path("stats/", include('apps.stats.urls')),
     path("upcoming/", include('apps.upcoming.urls')),
     path("launches/", include('apps.launches.urls')),
