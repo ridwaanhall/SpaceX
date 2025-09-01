@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.reverse import reverse
+from django.conf import settings
 
 
 class APIRootView(APIView):
@@ -12,7 +13,7 @@ class APIRootView(APIView):
     def get(self, request, format=None):
         return Response({
             'message': 'Welcome to SpaceX API',
-            'version': '1.0',
+            'version': settings.VERSION,
             'endpoints': {
                 'stats': request.build_absolute_uri(reverse('stats:spacex-stats')),
                 'upcoming_launches': request.build_absolute_uri(reverse('upcoming:spacex-upcoming')),
