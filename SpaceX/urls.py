@@ -22,4 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("stats/", include('apps.stats.urls')),
     path("upcoming/", include('apps.upcoming.urls')),
+    path("launches/", include('apps.launches.urls')),
 ]

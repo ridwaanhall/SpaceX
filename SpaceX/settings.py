@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "apps.stats",
     "apps.upcoming",
+    "apps.launches",
 ]
 
 MIDDLEWARE = [

@@ -22,9 +22,9 @@ def decrypt_url(encrypted_data, key):
     return decrypted_url.decode()
 
 
-def fetch_upcoming_launches():
+def fetch_launches_data():
     """
-    Decrypt the upcoming launches API URL and fetch the data.
+    Decrypt the launches API URL and fetch the data.
     """
     encrypted_url = "gAAAAABotdgnMa5IuX_1uk7RhNLrojiAhUigJo_lfJt8izk6hZ-Huc92Kr3P57udOx1dJ3bHyfbCXmUpWfNi-sSF6BPfgfnZ5pRnabt6eVn7cnA7NsvaNmeCVUl-KKDdsGGJGZpa6TUWhxPXPdVkLfq00UvLf-TpsVacm0nj4aaMVmH1vIYXKnw="
     secret_key = settings.SECRET_KEY
@@ -40,4 +40,4 @@ def fetch_upcoming_launches():
         return response.json()
     
     except Exception as e:
-        raise Exception(f"Error fetching upcoming launches data: {str(e)}")
+        raise Exception(f"Error fetching launches data: {str(e)}")
