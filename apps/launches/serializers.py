@@ -94,3 +94,83 @@ class LaunchesResponseSerializer(serializers.Serializer):
             'total_launches': len(launches_data),
             'launches': launches_data
         }
+
+
+class TimelineEntrySerializer(serializers.Serializer):
+    """Serializer for timeline entry data"""
+    id = serializers.IntegerField()
+    time = serializers.CharField(max_length=50)
+    description = serializers.CharField(max_length=500)
+
+
+class TimelineSerializer(serializers.Serializer):
+    """Serializer for timeline data"""
+    id = serializers.IntegerField()
+    name = serializers.CharField(max_length=255, required=False)
+    title = serializers.CharField(max_length=255)
+    disclaimer = serializers.CharField(max_length=500, required=False, allow_null=True)
+    timeHeader = serializers.CharField(max_length=100)
+    descriptionHeader = serializers.CharField(max_length=100)
+    createdAt = serializers.DateTimeField(required=False)
+    updatedAt = serializers.DateTimeField(required=False)
+    publishedAt = serializers.DateTimeField(required=False)
+    documentId = serializers.CharField(max_length=255, required=False)
+    locale = serializers.CharField(max_length=10, required=False, allow_null=True)
+    timelineEntries = TimelineEntrySerializer(many=True)
+
+
+class WebcastSerializer(serializers.Serializer):
+    """Serializer for webcast data"""
+    id = serializers.IntegerField()
+    videoId = serializers.CharField(max_length=255)
+    streamingVideoType = serializers.CharField(max_length=100)
+    title = serializers.CharField(max_length=255, required=False, allow_null=True)
+    date = serializers.DateField(required=False, allow_null=True)
+    isFeatured = serializers.BooleanField(required=False, allow_null=True)
+    imageDesktop = ImageSerializer(required=False, allow_null=True)
+    imageMobile = ImageSerializer(required=False, allow_null=True)
+
+
+class ParagraphSerializer(serializers.Serializer):
+    """Serializer for paragraph content"""
+    id = serializers.IntegerField()
+    content = serializers.CharField()
+
+
+class AstronautSerializer(serializers.Serializer):
+    """Serializer for astronaut data"""
+    id = serializers.IntegerField()
+    name = serializers.CharField(max_length=255)
+    # Add more fields as needed based on actual astronaut data structure
+
+
+class LaunchDetailSerializer(serializers.Serializer):
+    """Serializer for detailed launch information"""
+    id = serializers.IntegerField()
+    documentId = serializers.CharField(max_length=255)
+    correlationId = serializers.CharField(max_length=255, required=False, allow_null=True)
+    missionId = serializers.CharField(max_length=255, required=False, allow_null=True)
+    title = serializers.CharField(max_length=255)
+    subtitle = serializers.CharField(max_length=255, required=False, allow_null=True)
+    callToAction = serializers.CharField(max_length=50)
+    quickDetail = serializers.CharField(max_length=500, required=False, allow_null=True)
+    endDate = serializers.DateField(required=False, allow_null=True)
+    youtubeVideoId = serializers.CharField(max_length=255, required=False, allow_null=True)
+    streamingVideoType = serializers.CharField(max_length=100, required=False, allow_null=True)
+    missionStatus = serializers.CharField(max_length=50)
+    followDragonEnabled = serializers.BooleanField()
+    returnFromIssEnabled = serializers.BooleanField()
+    toTheIssEnabled = serializers.BooleanField()
+    toTheIssTense = serializers.CharField(max_length=50, required=False, allow_null=True)
+    imageDesktop = ImageSerializer(required=False, allow_null=True)
+    imageMobile = ImageSerializer(required=False, allow_null=True)
+    videoDesktop = serializers.JSONField(required=False, allow_null=True)
+    videoMobile = serializers.JSONField(required=False, allow_null=True)
+    infographicDesktop = ImageSerializer(required=False, allow_null=True)
+    infographicMobile = ImageSerializer(required=False, allow_null=True)
+    preLaunchTimeline = TimelineSerializer(required=False, allow_null=True)
+    postLaunchTimeline = TimelineSerializer(required=False, allow_null=True)
+    astronauts = AstronautSerializer(many=True, required=False)
+    webcasts = WebcastSerializer(many=True, required=False)
+    paragraphs = ParagraphSerializer(many=True, required=False)
+    carousel = serializers.JSONField(required=False, allow_null=True)
