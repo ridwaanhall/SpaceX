@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.stats",
     "apps.upcoming",
     "apps.launches",
+    "apps.dragon",
 ]
 
 MIDDLEWARE = [
