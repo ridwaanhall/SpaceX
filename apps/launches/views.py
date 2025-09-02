@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .utils import fetch_launches_data
-from .serializers import LaunchesResponseSerializer, LaunchSerializer
+from .utils import fetch_launches_data, fetch_launch_detail
+from .serializers import LaunchesResponseSerializer, LaunchSerializer, LaunchDetailSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,47 @@ class LaunchesAPIView(APIView):
             return Response({
                 'success': False,
                 'message': f'Failed to retrieve SpaceX launches data: {str(e)}',
+                'data': None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LaunchDetailAPIView(APIView):
+    """
+    API view to get detailed SpaceX launch information.
+    Fetches detailed data for a specific launch using the link parameter.
+    """
+    
+    def get(self, request, link):
+        """
+        GET /launches/{link}/
+        Returns detailed SpaceX launch information for the specified link.
+        """
+        try:
+            # Fetch detailed data from the external SpaceX API
+            raw_data = fetch_launch_detail(link)
+            
+            # Serialize the data
+            serializer = LaunchDetailSerializer(data=raw_data)
+            
+            if serializer.is_valid():
+                return Response({
+                    'success': True,
+                    'message': f'Launch detail for {link} retrieved successfully',
+                    'data': serializer.validated_data
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'success': False,
+                    'message': 'Invalid data format received from SpaceX API',
+                    'errors': serializer.errors,
+                    'raw_data': raw_data
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        except Exception as e:
+            logger.error(f"Error in LaunchDetailAPIView for {link}: {str(e)}")
+            return Response({
+                'success': False,
+                'message': f'Failed to retrieve launch detail for {link}: {str(e)}',
                 'data': None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
