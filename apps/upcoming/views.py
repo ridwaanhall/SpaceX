@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.http import JsonResponse
 from .utils import fetch_upcoming_launches
 from .serializers import UpcomingLaunchesResponseSerializer, UpcomingLaunchSerializer
+from .exceptions import APIError, DecryptionError, ValidationError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -47,20 +47,38 @@ class UpcomingLaunchesAPIView(APIView):
                 'data': response_serializer.data
             }
             
-            # Add validation errors if any (but still return successful response)
+            # Log validation errors but don't expose them to the user
             if launch_errors:
-                response_data['validation_warnings'] = {
-                    'message': f'{len(launch_errors)} launches had validation issues',
-                    'errors': launch_errors[:5]  # Limit to first 5 errors
-                }
+                logger.warning(f'{len(launch_errors)} launches had validation issues')
             
             return Response(response_data, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            logger.error(f"Error in UpcomingLaunchesAPIView: {str(e)}")
+        
+        except DecryptionError as e:
             return Response({
                 'success': False,
-                'message': f'Failed to retrieve upcoming launches: {str(e)}',
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        except ValidationError as e:
+            return Response({
+                'success': False,
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except APIError as e:
+            return Response({
+                'success': False,
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            
+        except Exception as e:
+            logger.error(f"Unexpected error in UpcomingLaunchesAPIView: {str(e)}")
+            return Response({
+                'success': False,
+                'message': 'An unexpected error occurred. Please try again later.',
                 'data': None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -112,12 +130,33 @@ class UpcomingStatsAPIView(APIView):
                     'launch_sites': launch_sites
                 }
             }, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            logger.error(f"Error in UpcomingStatsAPIView: {str(e)}")
+        
+        except DecryptionError as e:
             return Response({
                 'success': False,
-                'message': f'Failed to retrieve upcoming launches statistics: {str(e)}',
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        except ValidationError as e:
+            return Response({
+                'success': False,
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except APIError as e:
+            return Response({
+                'success': False,
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            
+        except Exception as e:
+            logger.error(f"Unexpected error in UpcomingStatsAPIView: {str(e)}")
+            return Response({
+                'success': False,
+                'message': 'An unexpected error occurred. Please try again later.',
                 'data': None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
