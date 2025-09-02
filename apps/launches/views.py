@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .utils import fetch_launches_data, fetch_launch_detail
-from .serializers import LaunchesResponseSerializer, LaunchSerializer, LaunchDetailSerializer
+from .utils import fetch_launches_data, fetch_launch_detail, APIError, NotFoundError, ValidationError
+from .serializers import LaunchesResponseSerializer, LaunchDetailSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -31,12 +31,26 @@ class LaunchesAPIView(APIView):
                 'message': 'SpaceX launches data retrieved successfully',
                 'data': serializer.data
             }, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            logger.error(f"Error in LaunchesAPIView: {str(e)}")
+        
+        except APIError as e:
             return Response({
                 'success': False,
-                'message': f'Failed to retrieve SpaceX launches data: {str(e)}',
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+        except NotFoundError as e:
+            return Response({
+                'success': False,
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_404_NOT_FOUND)
+            
+        except Exception as e:
+            logger.error(f"Unexpected error in LaunchesAPIView: {str(e)}")
+            return Response({
+                'success': False,
+                'message': 'An unexpected error occurred. Please try again later.',
                 'data': None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -62,7 +76,7 @@ class LaunchDetailAPIView(APIView):
             if serializer.is_valid():
                 return Response({
                     'success': True,
-                    'message': f'Launch detail for {link} retrieved successfully',
+                    'message': f'Launch details retrieved successfully',
                     'data': serializer.validated_data
                 }, status=status.HTTP_200_OK)
             else:
@@ -70,16 +84,36 @@ class LaunchDetailAPIView(APIView):
                 logger.warning(f"Serializer validation errors for {link}: {serializer.errors}")
                 return Response({
                     'success': True,
-                    'message': f'Launch detail for {link} retrieved successfully (with validation warnings)',
-                    'data': raw_data,
-                    'validation_warnings': serializer.errors
+                    'message': 'Launch details retrieved successfully',
+                    'data': raw_data
                 }, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            logger.error(f"Error in LaunchDetailAPIView for {link}: {str(e)}")
+        
+        except ValidationError as e:
             return Response({
                 'success': False,
-                'message': f'Failed to retrieve launch detail for {link}: {str(e)}',
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except NotFoundError as e:
+            return Response({
+                'success': False,
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        except APIError as e:
+            return Response({
+                'success': False,
+                'message': str(e),
+                'data': None
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            
+        except Exception as e:
+            logger.error(f"Unexpected error in LaunchDetailAPIView for {link}: {str(e)}")
+            return Response({
+                'success': False,
+                'message': 'An unexpected error occurred. Please try again later.',
                 'data': None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
