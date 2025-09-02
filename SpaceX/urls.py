@@ -23,4 +23,5 @@ urlpatterns = [
     path("stats/", include('apps.stats.urls')),
     path("upcoming/", include('apps.upcoming.urls')),
     path("launches/", include('apps.launches.urls')),
+    path("dragon/", include('apps.dragon.urls')),
 ]
