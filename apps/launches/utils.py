@@ -41,3 +41,27 @@ def fetch_launches_data():
     
     except Exception as e:
         raise Exception(f"Error fetching launches data: {str(e)}")
+
+
+def fetch_launch_detail(link):
+    """
+    Decrypt the launch detail API URL and fetch specific launch data using the link parameter.
+    """
+    encrypted_detail_url = "gAAAAABotqX39erTnt50rCjm_vpcCHhSGOvx1mBL9AtkHHEyKssHQaqPtbwc8lZ7E759sdrfDcLioYi9NjgRGfYaQ3Xp3JJimaIMPD_XCX15pCubNz6hW3SCAfq-5y3mXPbKUgqknG-nTlLrCKp_yatbWynvVuTdcw=="
+    secret_key = settings.SECRET_KEY
+    
+    try:
+        # Decrypt the base URL
+        decrypted_base_url = decrypt_url(encrypted_detail_url, secret_key)
+        
+        # Construct the full URL with the link parameter
+        detail_url = f"{decrypted_base_url}/{link}"
+        
+        # Make the API request
+        response = requests.get(detail_url, timeout=30)
+        response.raise_for_status()
+        
+        return response.json()
+    
+    except Exception as e:
+        raise Exception(f"Error fetching launch detail for {link}: {str(e)}")
