@@ -28,7 +28,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost 127.0.0.1 0.0.0.0', cast=lambda v: [s.strip() for s in v.split()])
 
-VERSION = config('API_VERSION', default='1.0')
+VERSION = config('API_VERSION', default='1.0.1')
 
 # Application definition
 
