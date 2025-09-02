@@ -56,7 +56,7 @@ class LaunchDetailAPIView(APIView):
             # Fetch detailed data from the external SpaceX API
             raw_data = fetch_launch_detail(link)
             
-            # Serialize the data
+            # Try to serialize the data, but don't fail if validation errors occur
             serializer = LaunchDetailSerializer(data=raw_data)
             
             if serializer.is_valid():
@@ -66,12 +66,14 @@ class LaunchDetailAPIView(APIView):
                     'data': serializer.validated_data
                 }, status=status.HTTP_200_OK)
             else:
+                # If validation fails, return the raw data but log the errors
+                logger.warning(f"Serializer validation errors for {link}: {serializer.errors}")
                 return Response({
-                    'success': False,
-                    'message': 'Invalid data format received from SpaceX API',
-                    'errors': serializer.errors,
-                    'raw_data': raw_data
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    'success': True,
+                    'message': f'Launch detail for {link} retrieved successfully (with validation warnings)',
+                    'data': raw_data,
+                    'validation_warnings': serializer.errors
+                }, status=status.HTTP_200_OK)
             
         except Exception as e:
             logger.error(f"Error in LaunchDetailAPIView for {link}: {str(e)}")
