@@ -3,6 +3,10 @@ import hashlib
 import requests
 from cryptography.fernet import Fernet
 from django.conf import settings
+import logging
+from .exceptions import APIError, NotFoundError, ValidationError
+
+logger = logging.getLogger(__name__)
 
 
 def decrypt_url(encrypted_data, key):
@@ -39,14 +43,41 @@ def fetch_launches_data():
         
         return response.json()
     
+    except requests.exceptions.Timeout:
+        logger.error("Timeout occurred while fetching launches data")
+        raise APIError("Service temporarily unavailable. Please try again later.")
+    
+    except requests.exceptions.ConnectionError:
+        logger.error("Connection error occurred while fetching launches data")
+        raise APIError("Unable to connect to data source. Please try again later.")
+    
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"HTTP error occurred while fetching launches data: {e.response.status_code}")
+        if e.response.status_code == 404:
+            raise NotFoundError("Launches data not found.")
+        elif e.response.status_code >= 500:
+            raise APIError("External service error. Please try again later.")
+        else:
+            raise APIError("Failed to retrieve launches data.")
+    
     except Exception as e:
-        raise Exception(f"Error fetching launches data: {str(e)}")
+        logger.error(f"Unexpected error fetching launches data: {str(e)}")
+        raise APIError("An unexpected error occurred. Please try again later.")
 
 
 def fetch_launch_detail(link):
     """
     Decrypt the launch detail API URL and fetch specific launch data using the link parameter.
     """
+    # Validate link parameter to prevent injection
+    if not link or not isinstance(link, str) or len(link) > 100:
+        raise ValidationError("Invalid launch identifier provided.")
+    
+    # Basic sanitization
+    import re
+    if not re.match(r'^[a-zA-Z0-9\-_]+$', link):
+        raise ValidationError("Launch identifier contains invalid characters.")
+    
     encrypted_detail_url = "gAAAAABotqX39erTnt50rCjm_vpcCHhSGOvx1mBL9AtkHHEyKssHQaqPtbwc8lZ7E759sdrfDcLioYi9NjgRGfYaQ3Xp3JJimaIMPD_XCX15pCubNz6hW3SCAfq-5y3mXPbKUgqknG-nTlLrCKp_yatbWynvVuTdcw=="
     secret_key = settings.SECRET_KEY
     
@@ -63,5 +94,23 @@ def fetch_launch_detail(link):
         
         return response.json()
     
+    except requests.exceptions.Timeout:
+        logger.error(f"Timeout occurred while fetching launch detail for link: {link}")
+        raise APIError("Service temporarily unavailable. Please try again later.")
+    
+    except requests.exceptions.ConnectionError:
+        logger.error(f"Connection error occurred while fetching launch detail for link: {link}")
+        raise APIError("Unable to connect to data source. Please try again later.")
+    
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"HTTP error occurred while fetching launch detail for link {link}: {e.response.status_code}")
+        if e.response.status_code == 404:
+            raise NotFoundError("Launch not found. Please check the launch identifier and try again.")
+        elif e.response.status_code >= 500:
+            raise APIError("External service error. Please try again later.")
+        else:
+            raise APIError("Failed to retrieve launch details.")
+    
     except Exception as e:
-        raise Exception(f"Error fetching launch detail for {link}: {str(e)}")
+        logger.error(f"Unexpected error fetching launch detail for link {link}: {str(e)}")
+        raise APIError("An unexpected error occurred. Please try again later.")
