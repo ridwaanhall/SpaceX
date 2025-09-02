@@ -12,14 +12,15 @@ class ImageFormatSerializer(serializers.Serializer):
     size = serializers.FloatField()
     width = serializers.IntegerField()
     height = serializers.IntegerField()
+    sizeInBytes = serializers.IntegerField(required=False)
 
 
 class ImageFormatsSerializer(serializers.Serializer):
     """Serializer for all image formats"""
-    large = ImageFormatSerializer(required=False)
-    small = ImageFormatSerializer(required=False) 
-    medium = ImageFormatSerializer(required=False)
-    thumbnail = ImageFormatSerializer(required=False)
+    large = ImageFormatSerializer(required=False, allow_null=True)
+    small = ImageFormatSerializer(required=False, allow_null=True) 
+    medium = ImageFormatSerializer(required=False, allow_null=True)
+    thumbnail = ImageFormatSerializer(required=False, allow_null=True)
 
 
 class ImageSerializer(serializers.Serializer):
@@ -30,7 +31,7 @@ class ImageSerializer(serializers.Serializer):
     caption = serializers.CharField(max_length=500, required=False, allow_null=True)
     width = serializers.IntegerField()
     height = serializers.IntegerField()
-    formats = ImageFormatsSerializer(required=False)
+    formats = ImageFormatsSerializer(required=False, allow_null=True)
     hash = serializers.CharField(max_length=255)
     ext = serializers.CharField(max_length=10)
     mime = serializers.CharField(max_length=50)
@@ -141,7 +142,25 @@ class AstronautSerializer(serializers.Serializer):
     """Serializer for astronaut data"""
     id = serializers.IntegerField()
     name = serializers.CharField(max_length=255)
-    # Add more fields as needed based on actual astronaut data structure
+    bioLink = serializers.URLField(required=False, allow_null=True)
+    description = serializers.CharField(max_length=255, required=False, allow_null=True)
+    portrait = ImageSerializer(required=False, allow_null=True)
+
+
+class CarouselItemSerializer(serializers.Serializer):
+    """Serializer for carousel item data"""
+    id = serializers.IntegerField()
+    caption = serializers.CharField(max_length=500, required=False, allow_null=True)
+    imageDesktop = ImageSerializer(required=False, allow_null=True)
+    imageMobile = ImageSerializer(required=False, allow_null=True)
+    videoDesktop = serializers.JSONField(required=False, allow_null=True)
+    videoMobile = serializers.JSONField(required=False, allow_null=True)
+
+
+class CarouselSerializer(serializers.Serializer):
+    """Serializer for carousel data"""
+    id = serializers.IntegerField()
+    carouselItems = CarouselItemSerializer(many=True, required=False)
 
 
 class LaunchDetailSerializer(serializers.Serializer):
@@ -173,4 +192,4 @@ class LaunchDetailSerializer(serializers.Serializer):
     astronauts = AstronautSerializer(many=True, required=False)
     webcasts = WebcastSerializer(many=True, required=False)
     paragraphs = ParagraphSerializer(many=True, required=False)
-    carousel = serializers.JSONField(required=False, allow_null=True)
+    carousel = CarouselSerializer(required=False, allow_null=True)
