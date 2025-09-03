@@ -1,16 +1,18 @@
 #!/bin/bash
 
-# Install dependencies
-echo "Installing dependencies..."
-pip install -r requirements.txt
+# Build script for Vercel deployment
+echo "Starting build process..."
+
+# Install dependencies (this should be handled by Vercel automatically)
+echo "Installing Python dependencies..."
+python3.12 -m pip install -r requirements.txt
 
 # Collect static files
 echo "Collecting static files..."
-python manage.py collectstatic --noinput --clear
+python3.12 manage.py collectstatic --noinput --clear
 
-# Copy static files to the build directory for Vercel
-echo "Preparing static files for Vercel..."
-mkdir -p staticfiles_build
-cp -r staticfiles/* staticfiles_build/
+echo "Build process completed!"
 
-echo "Build completed successfully!"
+# Create a simple static directory for Vercel (even though we use WhiteNoise)
+mkdir -p static
+echo "Static files ready for deployment"
