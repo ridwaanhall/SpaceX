@@ -2,6 +2,7 @@
 
 [![Django](https://img.shields.io/badge/Django-5.2.5-green.svg)](https://www.djangoproject.com/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-CC0%201.0-lightgrey.svg)](LICENSE)
 [![API Status](https://img.shields.io/badge/API-Online-brightgreen.svg)](https://spacex-api.ridwaanhall.com)
 
 A comprehensive RESTful API providing real-time SpaceX mission data, launch statistics, upcoming launches, and Dragon capsule tracking information.
