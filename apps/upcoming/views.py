@@ -54,23 +54,26 @@ class UpcomingLaunchesAPIView(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
         
         except DecryptionError as e:
+            logger.error(f"Decryption error in UpcomingLaunchesAPIView: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'Data decryption failed. Please try again later.',
                 'data': None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         except ValidationError as e:
+            logger.error(f"Validation error in UpcomingLaunchesAPIView: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'Invalid request data provided.',
                 'data': None
             }, status=status.HTTP_400_BAD_REQUEST)
         
         except APIError as e:
+            logger.error(f"API error in UpcomingLaunchesAPIView: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'External service temporarily unavailable. Please try again later.',
                 'data': None
             }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
             
@@ -132,23 +135,26 @@ class UpcomingStatsAPIView(APIView):
             }, status=status.HTTP_200_OK)
         
         except DecryptionError as e:
+            logger.error(f"Decryption error in UpcomingStatsAPIView: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'Data decryption failed. Please try again later.',
                 'data': None
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         except ValidationError as e:
+            logger.error(f"Validation error in UpcomingStatsAPIView: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'Invalid request data provided.',
                 'data': None
             }, status=status.HTTP_400_BAD_REQUEST)
         
         except APIError as e:
+            logger.error(f"API error in UpcomingStatsAPIView: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'External service temporarily unavailable. Please try again later.',
                 'data': None
             }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
             

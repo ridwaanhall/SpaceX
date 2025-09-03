@@ -33,16 +33,18 @@ class LaunchesAPIView(APIView):
             }, status=status.HTTP_200_OK)
         
         except APIError as e:
+            logger.error(f"API error in LaunchesAPIView: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'External service temporarily unavailable. Please try again later.',
                 'data': None
             }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         
         except NotFoundError as e:
+            logger.error(f"Not found error in LaunchesAPIView: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'The requested resource was not found.',
                 'data': None
             }, status=status.HTTP_404_NOT_FOUND)
             
@@ -89,23 +91,26 @@ class LaunchDetailAPIView(APIView):
                 }, status=status.HTTP_200_OK)
         
         except ValidationError as e:
+            logger.error(f"Validation error in LaunchDetailAPIView for {link}: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'Invalid request data provided.',
                 'data': None
             }, status=status.HTTP_400_BAD_REQUEST)
         
         except NotFoundError as e:
+            logger.error(f"Not found error in LaunchDetailAPIView for {link}: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'The requested launch was not found.',
                 'data': None
             }, status=status.HTTP_404_NOT_FOUND)
         
         except APIError as e:
+            logger.error(f"API error in LaunchDetailAPIView for {link}: {str(e)}")
             return Response({
                 'success': False,
-                'message': str(e),
+                'message': 'External service temporarily unavailable. Please try again later.',
                 'data': None
             }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
             
