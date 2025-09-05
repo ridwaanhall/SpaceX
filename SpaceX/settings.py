@@ -30,7 +30,7 @@ IS_AVAILABLE = config('IS_AVAILABLE', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='.vercel.app .ridwaanhall.com', cast=lambda v: [s.strip() for s in v.split()])
 
-VERSION = config('API_VERSION', default='1.0.1')
+VERSION = config('API_VERSION', default='1.0.2')
 
 # Application definition
 
