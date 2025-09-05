@@ -16,12 +16,19 @@ Including another URLconf
 """
 
 from django.urls import path, include
+from django.conf import settings
 from .views import APIRootView
 
+# Base URL patterns (always available)
 urlpatterns = [
     path("", APIRootView.as_view(), name='api-root'),
-    path("stats/", include('apps.stats.urls')),
-    path("upcoming/", include('apps.upcoming.urls')),
-    path("launches/", include('apps.launches.urls')),
-    path("dragon/", include('apps.dragon.urls')),
 ]
+
+# Conditionally add app URLs based on IS_AVAILABLE setting
+if settings.IS_AVAILABLE:
+    urlpatterns += [
+        path("stats/", include('apps.stats.urls')),
+        path("upcoming/", include('apps.upcoming.urls')),
+        path("launches/", include('apps.launches.urls')),
+        path("dragon/", include('apps.dragon.urls')),
+    ]
