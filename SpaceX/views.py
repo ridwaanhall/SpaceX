@@ -11,9 +11,29 @@ class APIRootView(APIView):
     """
     
     def get(self, request, format=None):
+        # Check if full API is available
+        if not settings.IS_AVAILABLE:
+            return Response({
+                'message': 'SpaceX API - Limited Access',
+                'version': settings.VERSION,
+                'status': 'limited',
+                'reason': 'API access is currently limited due to high traffic',
+                'available_endpoints': {
+                    'root': {
+                        'url': request.build_absolute_uri('/'),
+                        'description': 'This root endpoint (current page)'
+                    }
+                },
+                'notice': 'Most API endpoints are temporarily unavailable. Please try again later.',
+                'contact': 'For urgent access requirements, please contact the administrator.',
+                'limited_apps': ['Only root endpoint available']
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+        # Full API is available
         return Response({
             'message': 'Welcome to SpaceX API',
             'version': settings.VERSION,
+            'status': 'operational',
             'endpoints': {
                 'stats': {
                     'url': request.build_absolute_uri(reverse('stats:spacex-stats')),
