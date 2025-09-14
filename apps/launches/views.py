@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .utils import fetch_launches_data, fetch_launch_detail, APIError, NotFoundError, ValidationError
+from .utils import fetch_launches_data, fetch_launch_detail, sort_launches_by_datetime, APIError, NotFoundError, ValidationError
 from .serializers import LaunchesResponseSerializer, LaunchDetailSerializer
 import logging
 
@@ -18,13 +18,37 @@ class LaunchesAPIView(APIView):
         """
         GET /launches/
         Returns SpaceX launches data.
+        Supports query parameter: sort=datetime (sorts by launch date and time, latest first)
         """
         try:
+            # Get the sort parameter from query string
+            sort_param = request.GET.get('sort', None)
+            
             # Fetch data from the external SpaceX API
             raw_data = fetch_launches_data()
             
+            # Extract launches from the response data
+            launches_list = []
+            if isinstance(raw_data, dict):
+                # If the response has a 'data' key with launches inside
+                if 'data' in raw_data and 'launches' in raw_data['data']:
+                    launches_list = raw_data['data']['launches']
+                # If the response has launches directly
+                elif 'launches' in raw_data:
+                    launches_list = raw_data['launches']
+                # If the response is just a list of launches
+                elif isinstance(raw_data.get('data'), list):
+                    launches_list = raw_data['data']
+            elif isinstance(raw_data, list):
+                # If the response is directly a list of launches
+                launches_list = raw_data
+            
+            # Apply sorting if requested
+            if sort_param == 'datetime' and launches_list:
+                launches_list = sort_launches_by_datetime(launches_list)
+            
             # Serialize the data
-            serializer = LaunchesResponseSerializer(raw_data)
+            serializer = LaunchesResponseSerializer(launches_list)
             
             return Response({
                 'success': True,
