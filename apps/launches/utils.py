@@ -4,6 +4,7 @@ import requests
 from cryptography.fernet import Fernet
 from django.conf import settings
 import logging
+from datetime import datetime, time, date
 from .exceptions import APIError, NotFoundError, ValidationError
 
 logger = logging.getLogger(__name__)
@@ -114,3 +115,71 @@ def fetch_launch_detail(link):
     except Exception as e:
         logger.error(f"Unexpected error fetching launch detail for link {link}: {str(e)}")
         raise APIError("An unexpected error occurred. Please try again later.")
+
+
+def sort_launches_by_datetime(launches_data):
+    """
+    Sort launches by datetime (combining launchDate and launchTime) with latest first.
+    
+    Args:
+        launches_data: List of launch dictionaries containing launchDate and launchTime
+        
+    Returns:
+        Sorted list with latest launches first (descending order)
+    """
+    def get_launch_datetime(launch):
+        """Extract and combine launch date and time for sorting"""
+        try:
+            launch_date = launch.get('launchDate')
+            launch_time = launch.get('launchTime')
+            
+            # Handle different possible date formats
+            if isinstance(launch_date, str):
+                # Try to parse string date
+                try:
+                    parsed_date = datetime.strptime(launch_date, '%Y-%m-%d').date()
+                except ValueError:
+                    try:
+                        parsed_date = datetime.strptime(launch_date, '%m/%d/%Y').date()
+                    except ValueError:
+                        # If we can't parse the date, put it at the end
+                        return datetime.min
+            elif isinstance(launch_date, date):
+                parsed_date = launch_date
+            else:
+                # If no valid date, put at the end
+                return datetime.min
+            
+            # Handle time
+            if isinstance(launch_time, str):
+                # Try to parse string time
+                try:
+                    parsed_time = datetime.strptime(launch_time, '%H:%M:%S').time()
+                except ValueError:
+                    try:
+                        parsed_time = datetime.strptime(launch_time, '%H:%M').time()
+                    except ValueError:
+                        # If we can't parse time, use midnight
+                        parsed_time = time(0, 0)
+            elif isinstance(launch_time, time):
+                parsed_time = launch_time
+            else:
+                # If no valid time, use midnight
+                parsed_time = time(0, 0)
+            
+            # Combine date and time
+            return datetime.combine(parsed_date, parsed_time)
+            
+        except Exception as e:
+            logger.warning(f"Error parsing launch datetime: {str(e)}")
+            # Return minimum datetime for problematic entries
+            return datetime.min
+    
+    try:
+        # Sort by datetime in descending order (latest first)
+        sorted_launches = sorted(launches_data, key=get_launch_datetime, reverse=True)
+        return sorted_launches
+    except Exception as e:
+        logger.error(f"Error sorting launches by datetime: {str(e)}")
+        # Return original data if sorting fails
+        return launches_data
