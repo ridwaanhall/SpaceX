@@ -10,5 +10,5 @@ pycparser==2.22
 python-decouple==3.8
 requests==2.33.0
 sqlparse==0.5.4
-urllib3==2.6.3
+urllib3==2.7.0
 whitenoise==6.9.0
